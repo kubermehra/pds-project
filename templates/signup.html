@@ -29,19 +29,34 @@
                         </div>
                         <form method="POST" class="register-form" id="register-form">
                             <div class="form-group">
-                                <label for="name"><i class="zmdi zmdi-account material-icons-name"></i></label>
-                                <input type="text" name="name" id="name" placeholder="Your Name" />
+                                <label for="username"></label>
+                                <input type="text" name="username" id="username" placeholder="Username" />
                             </div>
                             <div class="form-group">
-                                <label for="email"><i class="zmdi zmdi-email"></i></label>
+                                <label for="fname"></label>
+                                <input type="fname" name="fname" id="fname" placeholder="First Name" />
+                            </div>
+                            <div class="form-group">
+                                <label for="lname"></label>
+                                <input type="lname" name="lname" id="lname" placeholder="Last Name" />
+                            </div>
+                            <div class="form-group">
+                                <label for="email"></label>
                                 <input type="email" name="email" id="email" placeholder="Your Email" />
                             </div>
+
                             <div class="form-group">
-                                <label for="pass"><i class="zmdi zmdi-lock"></i></label>
+                                <label for="phone"></label>
+                                <input type="phone" name="phone" id="phone" placeholder="Enter Your phone numbers" />
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="pass"></i></label>
                                 <input type="password" name="pass" id="pass" placeholder="Password" />
                             </div>
                             <div class="form-group">
-                                <label for="re-pass"><i class="zmdi zmdi-lock-outline"></i></label>
+                                <label for="re-pass"></label>
                                 <input type="password" name="repass" id="repass" placeholder="Repeat your password" />
                             </div>
                             <div class="form-group">
@@ -74,7 +89,9 @@
 
         function register(){
 
-            if (($("#name").val() == '') || ($("#email").val() == "")||
+            if (($("#username").val() == '') || ($("#fname").val() == "")||
+                ($("#lname").val() == '') || ($("#phone").val() == "")||
+                ($("#email").val() == "")||
                 ($("#pass").val() == '') || ($("#repass").val() == "")){
 
                 $("#error_message").text("All fields are required");
@@ -87,8 +104,11 @@
 
             else {
                 var data = new FormData();
-                data.append('name', $("#name").val());
+                data.append('username', $("#username").val());
+                data.append('phone', $("#phone").val());
                 data.append('email', $("#email").val());
+                data.append('fname', $("#fname").val());
+                data.append('lname', $("#lname").val());
                 data.append('pass', $("#pass").val());
 
                 $.ajax({
@@ -110,7 +130,7 @@
                             }, 3000);
 
                         } else{                           
-                            $("#error_message").text("Email Id was already exists.");
+                            $("#error_message").text("Username was already exists.");
                             $("#error_message").show(0).delay(3000).hide(0);
                         }
                     }
