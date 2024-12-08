@@ -20,6 +20,21 @@ CREATE TABLE Item (
     FOREIGN KEY (mainCategory, subCategory) REFERENCES Category(mainCategory, subCategory)
 );
 
+CREATE TABLE Item (
+    ItemID INT NOT NULL AUTO_INCREMENT,
+    iDescription TEXT,
+    photo BLOB, -- Changed from VARCHAR to BLOB to store binary image data
+    color VARCHAR(20),
+    isNew BOOLEAN DEFAULT TRUE,
+    hasPieces BOOLEAN,
+    material VARCHAR(50),
+    mainCategory VARCHAR(50) NOT NULL,
+    subCategory VARCHAR(50) NOT NULL,
+    PRIMARY KEY (ItemID),
+    FOREIGN KEY (mainCategory, subCategory) REFERENCES Category(mainCategory, subCategory)
+);
+
+
 
 CREATE TABLE Person (
     userName VARCHAR(50) NOT NULL,
