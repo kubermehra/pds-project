@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Home page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        body {
+            font-family: "Roboto", "Helvetica Neue", "sans-serif";
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-left, .top-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .top-left {
+            background-color: #f0f4f8;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-icon {
+            font-family: "Roboto", "Helvetica Neue", "sans-serif";
+            width: 40px;
+            height: 40px;
+            background-color: #eee;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .videos-btn {
+            font-family: "Roboto", "Helvetica Neue", "sans-serif";
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .videos-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .recommendation {
+            margin: 50px auto;
+            max-width: 1200px;
+            text-align: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .text {
+            font-family: "Roboto", "Helvetica Neue", "sans-serif";
+            grid-column: span 5;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-family: "Roboto", "Helvetica Neue", "sans-serif";
+            font-size: 28px;
+            font-weight: 700;
+        }
+    </style>
+
+    <!-- Font Icon -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='fonts/material-icon/css/material-design-iconic-font.min.css') }}">
+
+    <!-- Main css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+<div class="container">
+    <div class="top-left">
+        <h1>Big Data Project</h1>
+    </div>
+    <div class="top-right">
+        <div class="user-icon">👤</div>
+        <div class="user-info">
+            <strong>{{username}}</strong>
+        </div>
+    </div>
+</div>
+<div class="recommendation">
+</div>
+<script src="{{ url_for('static', filename= 'vendor/jquery/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename= 'js/index.js') }}"></script>
+<script type="text/javascript">
+    $.ajax({
+        type: 'POST',
+        url: '/generate_list',
+        processData: false,
+        cache: false,
+        timeout: 800000,
+        contentType: false,
+        data: "",
+        success: function (response) {
+            var data = JSON.parse(response);
+            if (data['vid_list']) {
+                $('.recommendation').append('<div class="text">Popular Videos</div>');
+                for (let i = 0; i < data['vid_list'].length; i++) {
+                    let id = data['vid_list'][i];
+                    let name = data['vid_name'][i];
+                    $(".recommendation").append(`<button class='video-button videos-btn' data-id='${id}'>${name} (${id})</button>`);
+                }
+                $('.video-button').click(markVidOpen)
+            } else {
+                console.log("vid_list does not exist or is undefined");
+            }
+        }
+    });
+
+    function markVidOpen() {
+        let videoId = $(this).attr('data-id');
+        $.ajax({
+            type: 'POST',
+            url: '/ana/mark_opened',
+            cache: false,
+            timeout: 800000,
+            contentType: "application/json",
+            data: JSON.stringify({'video_id': videoId}),
+        });
+        window.location.href = `/play_video/${videoId}`;
+    }
+
+</script>
+
+</body>
+</html>

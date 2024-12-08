@@ -1,5 +1,5 @@
 import mysql.connector
-from flask import request, jsonify
+# from flask import request, jsonify
 
 
 
@@ -7,18 +7,17 @@ db=mysql.connector.connect(
     host="localhost",
     user="root",
     passwd="root",
-    database="pds"
+    database="pds",
+    auth_plugin='mysql_native_password'
 )
 
 
 cursor=db.cursor()
 
-cursor.execute("SELECT NOW()")
+cursor.execute("SELECT NOW();")
 
 ans=cursor.fetchone()
 
-print(ans[0])
- 
 
 
 # # client = pymongo.MongoClient('mongodb://127.0.0.1:27017/')

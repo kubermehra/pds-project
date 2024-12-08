@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Embedded YouTube Video</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: "Roboto", "Helvetica Neue", "sans-serif";
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        h1 {
+            font-family: "Roboto", "Helvetica Neue", "sans-serif";
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: 700;
+            padding-left: 20px; /* Adds padding to keep the heading aligned with the body content */
+        }
+
+        .like-btn, .dislike-btn {
+            font-family: "Roboto", "Helvetica Neue", "sans-serif";
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            display: inline-flex; /* Aligns icon with text */
+            align-items: center; /* Centers the content vertically */
+            margin: 0 5px; /* Spacing between buttons */
+        }
+
+        .like-btn:hover, .dislike-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .like-btn i, .dislike-btn i {
+            margin-right: 8px; /* Space between icon and text */
+        }
+
+        #video-frame {
+            max-width: 900px; /* Maximum width */
+            max-height: 500px; /* Maximum height */
+            margin: 20px; /* Margin around the frame */
+            border-radius: 20px; /* Rounded corners */
+            overflow: hidden; /* Ensures no content leaks outside */
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
+</head>
+<body>
+    <h1 id={{videoId}}>Embedded YouTube Video</h1>
+    <!-- Replace 'VIDEO_ID' with the actual ID of the YouTube video you want to embed -->
+    <div id="video-frame"></div>
+    <div style="padding-left: 20px;">
+        <button class="like-btn" onclick="likeVideo('{{ videoId }}')"><i class="fas fa-thumbs-up"></i>Like</button>
+        <button class="dislike-btn" onclick="dislikeVideo('{{ videoId }}')"><i class="fas fa-thumbs-down"></i>Dislike</button>
+        {% if famous_segment %}
+        <button class="dislike-btn" onclick="startVideoAt30Seconds('{{ videoId }}', '{{ famous_segment }}')"><i class="fas fa-forward"></i>Skip to most watched</button>
+    {% endif %}
+    </div>
+
+    <script src="{{ url_for('static', filename= 'js/video.js') }}"></script>
+    <script type="text/javascript">
+        function likeVideo(videoId) {
+            // Call Flask route to handle liking video
+            fetch(`/like_video/${videoId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action: 'like' })
+            })
+            .then(response => console.log('Video liked'))
+            .catch(error => console.error('Error liking video:', error));
+        }
+
+        function dislikeVideo(videoId) {
+            fetch(`/like_video/${videoId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action: 'dislike' })
+            })
+            .then(response => console.log('Video disliked'))
+            .catch(error => console.error('Error disliking video:', error));
+        }
+    </script>
+</body>
+</html>
