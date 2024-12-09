@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Order Management</title>
+    <script>
+        function validateStartOrder() {
+            const staffID = document.getElementById('staffID').value;
+            const clientUsername = document.getElementById('clientUsername').value;
+
+            if (!staffID || !clientUsername) {
+                alert('Please fill in all required fields for starting an order!');
+                return false;
+            }
+            return true;
+        }
+
+        function validateAddToOrder() {
+            const category = document.getElementById('mainCategory').value;
+            const subCategory = document.getElementById('subCategory').value;
+
+            if (!category || !subCategory) {
+                alert('Please select a category and subcategory to add items!');
+                return false;
+            }
+            return true;
+        }
+
+        function validatePrepareOrder() {
+            const orderID = document.getElementById('orderIDPrepare').value;
+
+            if (!orderID) {
+                alert('Please enter an Order ID to prepare the order!');
+                return false;
+            }
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <h1>Staff Order Management</h1>
+
+    <!-- Section: Start an Order -->
+
+    <!--- 1. Validate Staff Member: SELECT userName 
+        FROM Act 
+        WHERE userName = ? AND roleID = 'staff';
+        -->
+
+    <!--- 2. Validate Client: SELECT userName 
+        FROM Person 
+        WHERE userName = ?;
+        -->
+
+    <!-- 3. Insert New Order: INSERT INTO Ordered (
+            orderDate, 
+            orderNotes, 
+            supervisor, 
+            client
+        ) 
+        VALUES (
+            CURDATE(), 
+            ?, 
+            ?, 
+            ?
+        );
+        -->
+
+    <!-- 4. Get new order: SELECT LAST_INSERT_ID();
+        -->
+
+    <section id="start-order">
+        <h2>Start an Order</h2>
+        <form method="POST" action="/start-order" onsubmit="return validateStartOrder();">
+            <label for="staffID">Staff ID:</label>
+            <input type="text" id="staffID" name="staffID" required>
+            <br><br>
+
+            <label for="clientUsername">Client Username:</label>
+            <input type="text" id="clientUsername" name="clientUsername" required>
+            <br><br>
+
+            <label for="orderNotes">Order Notes:</label>
+            <textarea id="orderNotes" name="orderNotes"></textarea>
+            <br><br>
+
+            <button type="submit">Start Order</button>
+        </form>
+        <div id="output-start-order" style="margin-top: 20px;">
+            <h3>Start Order Result:</h3>
+            <p>No data yet.</p>
+        </div>
+    </section>
+
+    <hr>
+
+    <!-- Section: Add to Current Order -->
+
+    <!-- 1. Get available items: SELECT Item.ItemID, iDescription 
+        FROM Item 
+        WHERE mainCategory = ? AND subCategory = ? 
+        AND ItemID NOT IN (
+            SELECT ItemID 
+            FROM ItemIn 
+            WHERE orderID = ?
+        );
+        -->
+
+    <!-- 2. Add Item to order: INSERT INTO ItemIn (
+            ItemID, 
+            orderID, 
+            found
+        ) 
+        VALUES (
+            ?, 
+            ?, 
+            FALSE
+        );
+        -->
+    
+    <section id="add-to-order">
+        <h2>Add to Current Order</h2>
+        <form method="POST" action="/add-to-order" onsubmit="return validateAddToOrder();">
+            <label for="orderID">Order ID:</label>
+            <input type="text" id="orderID" name="orderID" required>
+            <br><br>
+
+            <label for="mainCategory">Main Category:</label>
+            <select id="mainCategory" name="mainCategory" required>
+                <option value="">Select Category</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Clothing">Clothing</option>
+            </select>
+            <br><br>
+
+            <label for="subCategory">Sub Category:</label>
+            <select id="subCategory" name="subCategory" required>
+                <option value="">Select Subcategory</option>
+                <option value="Chair">Chair</option>
+                <option value="Table">Table</option>
+                <option value="Laptop">Laptop</option>
+                <option value="Shirt">Shirt</option>
+            </select>
+            <br><br>
+
+            <label for="itemID">Item ID:</label>
+            <input type="text" id="itemIDAdd" name="itemID" required>
+            <br><br>
+
+            <button type="submit">Add Item to Order</button>
+        </form>
+        <div id="output-add-to-order" style="margin-top: 20px;">
+            <h3>Add to Order Result:</h3>
+            <p>No data yet.</p>
+        </div>
+    </section>
+
+    <hr>
+
+    <!-- Section: Prepare Order -->
+
+    <!-- 1. Retrieve items from order: SELECT Item.ItemID, Piece.roomNum, Piece.shelfNum 
+        FROM ItemIn 
+        NATURAL JOIN Piece
+        WHERE orderID = ?;
+        -->
+
+    <!-- 2. Update Item Location: UPDATE Piece 
+        SET roomNum = ?, 
+            shelfNum = ? 
+        WHERE ItemID IN (
+            SELECT ItemID 
+            FROM ItemIn 
+            WHERE orderID = ?
+        );
+        -->
+        
+    <section id="prepare-order">
+        <h2>Prepare Order</h2>
+        <form method="POST" action="/prepare-order" onsubmit="return validatePrepareOrder();">
+            <label for="orderIDPrepare">Order ID:</label>
+            <input type="text" id="orderIDPrepare" name="orderIDPrepare" required>
+            <br><br>
+
+            <label for="holdingLocation">Holding Location:</label>
+            <input type="text" id="holdingLocation" name="holdingLocation" placeholder="Room,Shelf">
+            <br><br>
+
+            <button type="submit">Prepare Order</button>
+        </form>
+        <div id="output-prepare-order" style="margin-top: 20px;">
+            <h3>Prepare Order Result:</h3>
+            <p>No data yet.</p>
+        </div>
+    </section>
+
+    <hr>
+</body>
+</html>
