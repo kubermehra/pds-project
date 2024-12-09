@@ -9,6 +9,12 @@
     <h1>Required Features</h1>
 
     <!-- Section: Find Single Item -->
+
+    <!-- SELECT roomNum, shelfNum, pDescription 
+        FROM Piece 
+        WHERE ItemID = ? 
+        -->  
+
     <section id="find-single-item">
         <h2>Find Single Item</h2>
         <form method="POST">
@@ -27,7 +33,15 @@
     <hr>
 
     <!-- Section: Find Order Items -->
-    <section id="find-order-items">
+     <!--  SELECT Item.ItemID, iDescription, roomNum, shelfNum, pDescription 
+        FROM Ordered 
+        NATURAL JOIN ItemIn
+        NATURAL JOIN Piece
+        NATURAL JOIN Item
+        WHERE Ordered.orderID = ?;
+        -->
+    
+        <section id="find-order-items">
         <h2>Find Order Items</h2>
         <form method="POST" action="/find-order">
             <label for="orderID">Enter Order ID:</label>
@@ -44,6 +58,55 @@
     <hr>
 
     <!-- Section: Accept Donation -->
+
+    <!-- 1. Validate Staff: SELECT userName 
+        FROM Act 
+        WHERE userName = ? AND roleID = 'staff';
+        -->
+
+    <!-- 2. Validate Donor: SELECT userName 
+        FROM Act 
+        WHERE userName = ? AND roleID = 'donor';
+        -->
+
+    <!-- 3. Insert New Item: INSERT INTO Item (
+            iDescription, 
+            photo, 
+            color, 
+            isNew, 
+            hasPieces, 
+            material, 
+            mainCategory, 
+            subCategory
+        ) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        -->
+
+    <!-- 4. Retrieve Item for display: SELECT LAST_INSERT_ID();
+        -->
+
+    <!-- 5. Insert Piece Data: INSERT INTO Piece (
+            ItemID, 
+            pieceNum, 
+            pDescription, 
+            length, 
+            width, 
+            height, 
+            roomNum, 
+            shelfNum, 
+            pNotes
+        ) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        -->
+
+    <!-- 6. Record Donation: INSERT INTO DonatedBy (
+            ItemID, 
+            userName, 
+            donateDate
+        ) 
+        VALUES (?, ?, NOW());
+        -->
+
     <section id="accept-donation">
         <h2>Accept Donation</h2>
         <form method="POST" action="/accept_donation" enctype="multipart/form-data" onsubmit="return validateDonationForm();">
