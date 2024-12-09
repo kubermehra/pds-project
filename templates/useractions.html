@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard</title>
+    <script>
+        function validateRecordForm() {
+            const taskType = document.getElementById('taskType').value;
+            const orderID = document.getElementById('orderID').value;
+
+            if (!taskType || !orderID) {
+                alert('Please fill in all required fields to add a new record!');
+                return false;
+            }
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <h1>Client Dashboard</h1>
+
+    <!-- Section: View Orders as a Client -->
+    <section id="client-orders">
+        <h2>Your Orders</h2>
+        <form method="POST" action="/view-client-orders">
+            <button type="submit">View Your Orders</button>
+        </form>
+        <div id="output-client-orders" style="margin-top: 20px;">
+            <h3>Orders:</h3>
+            <p>No data yet.</p>
+        </div>
+    </section>
+
+    <hr>
+
+    <!-- Section: View Tasks as a Volunteer -->
+    <section id="volunteer-tasks">
+        <h2>Your Tasks as a Volunteer</h2>
+        <form method="POST" action="/view-volunteer-tasks">
+            <button type="submit">View Tasks</button>
+        </form>
+        <div id="output-volunteer-tasks" style="margin-top: 20px;">
+            <h3>Volunteer Tasks:</h3>
+            <p>No data yet.</p>
+        </div>
+    </section>
+
+    <hr>
+
+    <!-- Section: Add New Record -->
+    <section id="add-record">
+        <h2>Add a New Record</h2>
+        <form method="POST" action="/add-new-record" onsubmit="return validateRecordForm();">
+            <label for="taskType">Task Type:</label>
+            <select id="taskType" name="taskType" required>
+                <option value="">Select Task Type</option>
+                <option value="client">Client</option>
+                <option value="volunteer">Volunteer</option>
+            </select>
+            <br><br>
+
+            <label for="orderID">Order ID:</label>
+            <input type="text" id="orderID" name="orderID" required>
+            <br><br>
+
+            <button type="submit">Add Record</button>
+        </form>
+        <div id="output-add-record" style="margin-top: 20px;">
+            <h3>New Record Status:</h3>
+            <p>No data yet.</p>
+        </div>
+    </section>
+</body>
+</html>
