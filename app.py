@@ -137,8 +137,8 @@ def get_item():
     return json.dumps(data)
 
 @app.route('/find-order', methods=['GET','POST'])
-def get_item():
-    status,location_data=db.get_item_data()
+def get_order():
+    status,location_data=db.get_order_data()
     print(status)
     data={
         'status': status,

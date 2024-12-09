@@ -71,3 +71,36 @@ def get_item_data():
         else:
             return True, location_data
 
+def get_order_data():
+    if request.method == 'POST':
+        orderID=request.form['orderID']
+        cursor=db.cursor(dictionary=True,buffered=True)
+        query = """
+            SELECT 
+                ii.ItemID,
+                JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'roomNum', p.roomNum,
+                        'shelfNum', p.shelfNum
+                    )
+                ) AS Locations
+            FROM 
+                ItemIn ii
+            JOIN 
+                Ordered o ON ii.orderID = o.orderID
+            JOIN 
+                Piece p ON p.ItemID = ii.ItemID
+            WHERE 
+                o.orderID = %s
+            GROUP BY 
+                ii.ItemID;
+            """
+        cursor.execute(query,(orderID,))
+        location_data=cursor.fetchall()
+        cursor.close()
+        print(location_data)
+        if len(location_data)==0:
+            return False,[]
+        else:
+            return True, location_data
+

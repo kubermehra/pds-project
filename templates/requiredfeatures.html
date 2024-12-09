@@ -203,6 +203,7 @@
                     data: data,
                     success: function(response) {
                         var data=JSON.parse(response);
+                        console.log(data)
                         if(data['status']){
                             
                             var outputDiv = $('#output-single-item');
@@ -232,14 +233,14 @@
 
         function find_order(){
             
-            if(($("#orderID").val()=="")){
+            if($("#orderID").val() == ""){
                 alert('Please fill itemID');
             }
             else {
                 var data = new FormData();
-                data.append('orderID',$("#orderID").val());
+                data.append('orderID', $("#orderID").val());
                 $.ajax({
-                    type:'POST',
+                    type: 'POST',
                     enctype: 'multipart/form-data',
                     url: '/find-order',
                     processData: false,
@@ -248,33 +249,47 @@
                     contentType: false,
                     data: data,
                     success: function(response) {
-                        var data=JSON.parse(response);
-                        if(data['status']){
-                            
-                            var outputDiv = $('#output-single-item');
+                        var data = JSON.parse(response);
+                        if(data['status']) {
+                            var outputDiv = $('#output-order-items'); // Correct the selector
+    
                             // Clear any existing content in the div
                             outputDiv.empty();
                             $(".error_message.find_item").hide(0);
-                            // Loop through the locations list and append the roomNum and shelfNum
+    
+                            // Loop through the items and append the ItemID and Locations
                             for (var i = 0; i < data['locations'].length; i++) {
-                                var location = data['locations'][i];
-                                var entry = '<div>' + 
-                                            (i + 1) + '. Room: ' + location.roomNum + ', Shelf: ' + location.shelfNum +
-                                            '</div>';
-                                outputDiv.append(entry);
+                                var item = data['locations'][i];
+                                var itemID = item.ItemID;
+                                var locations;
+                                locations = JSON.parse(item.Locations);
+                                    
+    
+                                // Append the ItemID
+                                var itemHeader = '<div><strong>Item ID: ' + itemID + '</strong></div>';
+                                outputDiv.append(itemHeader);
+    
+                                // Append each location under the ItemID
+                                for (var j = 0; j < locations.length; j++) {
+                                    var location = locations[j];
+                                    var entry = '<div style="margin-left: 20px;">' + 
+                                                '- Room: ' + location.roomNum + ', Shelf: ' + location.shelfNum +
+                                                '</div>';
+                                    outputDiv.append(entry);
+                                }
                             }
-                        }
-                        else{
-                            $('#output-single-item').empty();
+                        } else {
+                            console.warn('No valid items found in response.');
+                            $('#output-order-items').empty(); // Correct the selector
                             $(".error_message.find_item").show(0);
-
                         }
-
-                    }
+                    
+                    },
                 });
             }
-
         }
+        
+        
         
         function validateDonationForm() {
             function validateDonationForm() {
