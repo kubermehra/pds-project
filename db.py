@@ -53,3 +53,21 @@ def check_user():
             return False, "", ""
         else:
             return True, user_data["email"], user_data["fname"]
+
+def get_item_data():
+    if request.method == 'POST':
+        itemId=request.form['itemID']
+        cursor=db.cursor(dictionary=True,buffered=True)
+        cursor.execute(f"select roomNum,\
+                                     shelfNum\
+                                     From Piece\
+                                     where itemID= {itemId} ",)
+        
+        location_data=cursor.fetchall()
+        cursor.close()
+        print(location_data)
+        if len(location_data)==0:
+            return False,[]
+        else:
+            return True, location_data
+

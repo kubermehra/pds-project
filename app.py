@@ -121,9 +121,30 @@ def register():
 def display():
     username = session.get('username')
     email = session.get('email')
-    return render_template("content.html", username=username)
+    return render_template("requiredfeatures.html")
     # else:
     #     return redirect(url_for('home'))  # Redirect to login if no user is logged in
+
+
+@app.route('/find-item', methods=['GET','POST'])
+def get_item():
+    status,location_data=db.get_item_data()
+    print(status)
+    data={
+        'status': status,
+        'locations': location_data
+    }
+    return json.dumps(data)
+
+@app.route('/find-order', methods=['GET','POST'])
+def get_item():
+    status,location_data=db.get_item_data()
+    print(status)
+    data={
+        'status': status,
+        'locations': location_data
+    }
+    return json.dumps(data)
 
 
 # @app.route('/generate_list', methods=['GET', 'POST'])

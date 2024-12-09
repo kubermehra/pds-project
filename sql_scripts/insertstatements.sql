@@ -8,11 +8,11 @@ INSERT INTO Category (mainCategory, subCategory, catNotes) VALUES
 -- Need to edit paths to include resources folder for images - refer to example python script to connect
 
 INSERT INTO Item (iDescription, photo, color, isNew, hasPieces, material, mainCategory, subCategory) VALUES
-('Office Chair', LOAD_FILE('resources/officechair.jpeg'), 'Black', TRUE, FALSE, 'Plastic', 'Furniture', 'Chair'),
-('Dining Table', LOAD_FILE('resources/diningtable.jpeg'), 'Brown', TRUE, FALSE, 'Wood', 'Furniture', 'Table'),
-('Gaming Laptop', LOAD_FILE('resources/gaminglaptop.jpeg'), 'Black', TRUE, FALSE, 'Metal', 'Electronics', 'Laptop'),
-('iPhone', LOAD_FILE('resources/iphone.jpeg'), 'Silver', TRUE, FALSE, 'Glass', 'Electronics', 'Smartphone'),
-('T-shirt', LOAD_FILE('resources/tshirt.jpeg'), 'Blue', TRUE, FALSE, 'Cotton', 'Clothing', 'Shirt');
+('Office Chair', 'resources/officechair.jpeg', 'Black', TRUE, FALSE, 'Plastic', 'Furniture', 'Chair'),
+('Dining Table', 'resources/diningtable.jpeg', 'Brown', TRUE, FALSE, 'Wood', 'Furniture', 'Table'),
+('Gaming Laptop', 'resources/gaminglaptop.jpeg', 'Black', TRUE, FALSE, 'Metal', 'Electronics', 'Laptop'),
+('iPhone', 'resources/iphone.jpeg', 'Silver', TRUE, FALSE, 'Glass', 'Electronics', 'Smartphone'),
+('T-shirt', 'resources/tshirt.jpeg', 'Blue', TRUE, FALSE, 'Cotton', 'Clothing', 'Shirt');
 
 INSERT INTO Person (userName, password, fname, lname, email) VALUES
 ('jdoe', 'hashed_password_1', 'John', 'Doe', 'john.doe@example.com'),

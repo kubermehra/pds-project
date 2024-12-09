@@ -4,21 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WelcomeHome Features</title>
-    <script>
-        function validateDonationForm() {
-            const staffID = document.getElementById('staffID').value;
-            const donorID = document.getElementById('donorID').value;
-            const mainCategory = document.getElementById('mainCategory').value;
-            const subCategory = document.getElementById('subCategory').value;
-
-            if (!staffID || !donorID || !mainCategory || !subCategory) {
-                alert('Please fill in all required fields for the donation!');
-                return false;
-            }
-
-            return true;
-        }
-    </script>
 </head>
 <body>
     <h1>Required Features</h1>
@@ -26,14 +11,16 @@
     <!-- Section: Find Single Item -->
     <section id="find-single-item">
         <h2>Find Single Item</h2>
-        <form method="POST" action="/find-item">
+        <form method="POST">
             <label for="itemID">Enter Item ID:</label>
             <input type="text" id="itemID" name="itemID" required>
-            <button type="submit">Find Locations</button>
+            <input type="button" onclick="find_item();" value="Find Location">
         </form>
+        <h3>Locations:</h3>
+        <p class="error_message find_item">No data yet.</p>
         <div id="output-single-item" style="margin-top: 20px;">
-            <h3>Locations:</h3>
-            <p>No data yet.</p>
+            
+            
         </div>
     </section>
 
@@ -45,11 +32,12 @@
         <form method="POST" action="/find-order">
             <label for="orderID">Enter Order ID:</label>
             <input type="text" id="orderID" name="orderID" required>
-            <button type="submit">Find Items</button>
+            <input type="button" onclick="find_order();" value="Find Order">
         </form>
+        <h3>Order Details:</h3>
+        <div class="error_message find_order">No data yet</div>
         <div id="output-order-items" style="margin-top: 20px;">
-            <h3>Order Details:</h3>
-            <p>No data yet.</p>
+            
         </div>
     </section>
 
@@ -58,7 +46,7 @@
     <!-- Section: Accept Donation -->
     <section id="accept-donation">
         <h2>Accept Donation</h2>
-        <form method="POST" action="/accept-donation" enctype="multipart/form-data" onsubmit="return validateDonationForm();">
+        <form method="POST" action="/accept_donation" enctype="multipart/form-data" onsubmit="return validateDonationForm();">
             <!-- Staff Verification -->
             <label for="staffID">Staff ID:</label>
             <input type="text" id="staffID" name="staffID" required>
@@ -130,6 +118,147 @@
     </section>
 
     <hr>
+    <script src="{{ url_for('static', filename= 'vendor/jquery/jquery.min.js') }}"></script>
+    <script>
 
+        function find_item(){
+            console.log("Inside")
+            if(($("#itemID").val()=="")){
+                alert('Please fill itemID');
+            }
+            else {
+                var data = new FormData();
+                data.append('itemID',$("#itemID").val());
+                $.ajax({
+                    type:'POST',
+                    enctype: 'multipart/form-data',
+                    url: '/find-item',
+                    processData: false,
+                    cache: false,
+                    timeout: 800000,
+                    contentType: false,
+                    data: data,
+                    success: function(response) {
+                        var data=JSON.parse(response);
+                        if(data['status']){
+                            
+                            var outputDiv = $('#output-single-item');
+                            // Clear any existing content in the div
+                            outputDiv.empty();
+                            $(".error_message.find_item").hide(0);
+                            // Loop through the locations list and append the roomNum and shelfNum
+                            for (var i = 0; i < data['locations'].length; i++) {
+                                var location = data['locations'][i];
+                                var entry = '<div>' + 
+                                            (i + 1) + '. Room: ' + location.roomNum + ', Shelf: ' + location.shelfNum +
+                                            '</div>';
+                                outputDiv.append(entry);
+                            }
+                        }
+                        else{
+                            $('#output-single-item').empty();
+                            $(".error_message.find_item").show(0);
+
+                        }
+
+                    }
+                });
+            }
+
+        }
+
+        function find_order(){
+            
+            if(($("#orderID").val()=="")){
+                alert('Please fill itemID');
+            }
+            else {
+                var data = new FormData();
+                data.append('orderID',$("#orderID").val());
+                $.ajax({
+                    type:'POST',
+                    enctype: 'multipart/form-data',
+                    url: '/find-order',
+                    processData: false,
+                    cache: false,
+                    timeout: 800000,
+                    contentType: false,
+                    data: data,
+                    success: function(response) {
+                        var data=JSON.parse(response);
+                        if(data['status']){
+                            
+                            var outputDiv = $('#output-single-item');
+                            // Clear any existing content in the div
+                            outputDiv.empty();
+                            $(".error_message.find_item").hide(0);
+                            // Loop through the locations list and append the roomNum and shelfNum
+                            for (var i = 0; i < data['locations'].length; i++) {
+                                var location = data['locations'][i];
+                                var entry = '<div>' + 
+                                            (i + 1) + '. Room: ' + location.roomNum + ', Shelf: ' + location.shelfNum +
+                                            '</div>';
+                                outputDiv.append(entry);
+                            }
+                        }
+                        else{
+                            $('#output-single-item').empty();
+                            $(".error_message.find_item").show(0);
+
+                        }
+
+                    }
+                });
+            }
+
+        }
+        
+        function validateDonationForm() {
+            function validateDonationForm() {
+            const staffID = $('#staffID').val();
+            const donorID = $('#donorID').val();
+            const mainCategory = $('#mainCategory').val();
+            const subCategory = $('#subCategory').val();
+
+            if (!staffID || !donorID || !mainCategory || !subCategory) {
+                alert('Please fill in all required fields for the donation!');
+            } 
+            else {
+                var data = new FormData();
+                data.append('staffID', $("#staffID").val());
+                data.append('donorID', $("#donorID").val());
+                data.append('itemID', $("#itemID").val());
+                $.ajax({
+                    type: 'POST',
+                    enctype: 'multipart/form-data',
+                    url: '/signin',
+                    processData: false,
+                    cache: false,
+                    timeout: 800000,
+                    contentType: false,
+                    data: data,
+                    success: function(response) {
+                        var data = JSON.parse(response);
+                        if (data['status'] == true){
+                            $(".error_message").hide(0);
+                            $('#login_message').text("Welcome " + data['username'] +", Login Successfully.");
+                            $('#login_message').show(0).delay(3000).hide(0);
+
+                            setTimeout(() => {
+                                window.location="/home";
+                            },3000);
+
+                        } else{
+                            $(".error_message").text("Incorrect Email and Password.");
+                            $(".error_message").show(0);
+
+                        }
+                    } 
+                });
+            }
+        }
+
+        }
+    </script>
 </body>
 </html>
