@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WelcomeHome Features</title>
+    <script>
+        function validateDonationForm() {
+            const staffID = document.getElementById('staffID').value;
+            const donorID = document.getElementById('donorID').value;
+            const mainCategory = document.getElementById('mainCategory').value;
+            const subCategory = document.getElementById('subCategory').value;
+
+            if (!staffID || !donorID || !mainCategory || !subCategory) {
+                alert('Please fill in all required fields for the donation!');
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+</head>
+<body>
+    <h1>Required Features</h1>
+
+    <!-- Section: Find Single Item -->
+    <section id="find-single-item">
+        <h2>Find Single Item</h2>
+        <form method="POST" action="/find-item">
+            <label for="itemID">Enter Item ID:</label>
+            <input type="text" id="itemID" name="itemID" required>
+            <button type="submit">Find Locations</button>
+        </form>
+        <div id="output-single-item" style="margin-top: 20px;">
+            <h3>Locations:</h3>
+            <p>No data yet.</p>
+        </div>
+    </section>
+
+    <hr>
+
+    <!-- Section: Find Order Items -->
+    <section id="find-order-items">
+        <h2>Find Order Items</h2>
+        <form method="POST" action="/find-order">
+            <label for="orderID">Enter Order ID:</label>
+            <input type="text" id="orderID" name="orderID" required>
+            <button type="submit">Find Items</button>
+        </form>
+        <div id="output-order-items" style="margin-top: 20px;">
+            <h3>Order Details:</h3>
+            <p>No data yet.</p>
+        </div>
+    </section>
+
+    <hr>
+
+    <!-- Section: Accept Donation -->
+    <section id="accept-donation">
+        <h2>Accept Donation</h2>
+        <form method="POST" action="/accept-donation" enctype="multipart/form-data" onsubmit="return validateDonationForm();">
+            <!-- Staff Verification -->
+            <label for="staffID">Staff ID:</label>
+            <input type="text" id="staffID" name="staffID" required>
+            <br><br>
+
+            <!-- Donor Information -->
+            <label for="donorID">Donor ID:</label>
+            <input type="text" id="donorID" name="donorID" required>
+            <br><br>
+
+            <!-- Item Details -->
+            <label for="itemID">Item ID (Optional):</label>
+            <input type="text" id="itemID" name="itemID">
+            <small>Leave blank to auto-generate</small>
+            <br><br>
+
+            <label for="iDescription">Item Description:</label>
+            <textarea id="iDescription" name="iDescription" required></textarea>
+            <br><br>
+
+            <label for="photo">Upload Photo:</label>
+            <input type="file" id="photo" name="photo" accept="image/*">
+            <br><br>
+
+            <label for="color">Color:</label>
+            <input type="text" id="color" name="color">
+            <br><br>
+
+            <label for="isNew">Is New:</label>
+            <select id="isNew" name="isNew">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+            <br><br>
+
+            <label for="hasPieces">Has Pieces:</label>
+            <select id="hasPieces" name="hasPieces">
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </select>
+            <br><br>
+
+            <label for="material">Material:</label>
+            <input type="text" id="material" name="material" required>
+            <br><br>
+
+            <!-- Item Categorization -->
+            <label for="mainCategory">Main Category:</label>
+            <input type="text" id="mainCategory" name="mainCategory" required>
+            <br><br>
+
+            <label for="subCategory">Sub Category:</label>
+            <input type="text" id="subCategory" name="subCategory" required>
+            <br><br>
+
+            <!-- Storage Location -->
+            <label for="location">Storage Location (Room, Shelf):</label>
+            <input type="text" id="location" name="location" placeholder="Room,Shelf" required>
+            <br><br>
+
+            <!-- Submit Button -->
+            <button type="submit">Submit Donation</button>
+        </form>
+
+        <div id="output-donation" style="margin-top: 20px;">
+            <h3>Submission Result:</h3>
+            <p>No data yet.</p>
+        </div>
+    </section>
+
+    <hr>
+
+</body>
+</html>
