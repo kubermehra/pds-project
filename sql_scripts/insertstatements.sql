@@ -78,12 +78,6 @@ INSERT INTO ItemIn (ItemID, orderID, found) VALUES
 (4, 4, TRUE),
 (5, 5, FALSE);
 
-INSERT INTO ItemIn (ItemID, orderID, found) VALUES
-(1, 1, TRUE),
-(2, 2, FALSE),
-(3, 3, TRUE),
-(4, 4, TRUE),
-(5, 5, FALSE);
 
 INSERT INTO Delivered (userName, orderID, status, date) VALUES
 ('jdoe', 1, 'Delivered', '2024-01-11'),
