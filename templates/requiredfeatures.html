@@ -109,21 +109,16 @@
 
     <section id="accept-donation">
         <h2>Accept Donation</h2>
-        <form method="POST" action="/accept_donation" enctype="multipart/form-data" onsubmit="return validateDonationForm();">
-            <!-- Staff Verification -->
-            <label for="staffID">Staff ID:</label>
-            <input type="text" id="staffID" name="staffID" required>
-            <br><br>
+        <form id="donationForm" method="POST" enctype="multipart/form-data" >
 
             <!-- Donor Information -->
+             
             <label for="donorID">Donor ID:</label>
             <input type="text" id="donorID" name="donorID" required>
             <br><br>
 
-            <!-- Item Details -->
-            <label for="itemID">Item ID (Optional):</label>
-            <input type="text" id="itemID" name="itemID">
-            <small>Leave blank to auto-generate</small>
+            <label for="itemID">Item ID:</label>
+            <input type="text" id="itemID" name="itemID" required>
             <br><br>
 
             <label for="iDescription">Item Description:</label>
@@ -131,7 +126,7 @@
             <br><br>
 
             <label for="photo">Upload Photo:</label>
-            <input type="file" id="photo" name="photo" accept="image/*">
+            <input type="text" id="photo" name="photo" accept="image/*">
             <br><br>
 
             <label for="color">Color:</label>
@@ -152,8 +147,21 @@
             </select>
             <br><br>
 
+            <label for="size">Size; (length, width, height)</label>
+            <input type="text" id="size" name="size" required>
+            <br><br>
+            
+
             <label for="material">Material:</label>
             <input type="text" id="material" name="material" required>
+            <br><br>
+
+            <label for="pDescription">Piece Description:</label>
+            <textarea id="pDescription" name="pDescription" required></textarea>
+            <br><br>
+
+            <label for="pNotes">Product Notes:</label>
+            <input type="text" id="pNotes" name="pNotes" required>
             <br><br>
 
             <!-- Item Categorization -->
@@ -170,14 +178,13 @@
             <input type="text" id="location" name="location" placeholder="Room,Shelf" required>
             <br><br>
 
+
             <!-- Submit Button -->
-            <button type="submit">Submit Donation</button>
+            <input type="button" onclick="validateDonationForm();" value="Submit Donation">
         </form>
 
-        <div id="output-donation" style="margin-top: 20px;">
-            <h3>Submission Result:</h3>
-            <p>No data yet.</p>
-        </div>
+        <p class="error_message accept_donation" style="color: red; "></p>
+        <p class="success_message accept_donation" style="color: green; "></p>
     </section>
 
     <hr>
@@ -292,24 +299,41 @@
         
         
         function validateDonationForm() {
-            function validateDonationForm() {
-            const staffID = $('#staffID').val();
-            const donorID = $('#donorID').val();
-            const mainCategory = $('#mainCategory').val();
-            const subCategory = $('#subCategory').val();
+            let isValid = true;
 
-            if (!staffID || !donorID || !mainCategory || !subCategory) {
-                alert('Please fill in all required fields for the donation!');
-            } 
-            else {
-                var data = new FormData();
-                data.append('staffID', $("#staffID").val());
-                data.append('donorID', $("#donorID").val());
-                data.append('itemID', $("#itemID").val());
+            // Loop through all inputs and textareas
+            $('#donationForm input, #donationForm textarea').each(function () {
+                const value = $(this).val().trim(); // Trim whitespace
+                const id = $(this).attr('id');
+
+                if (!value) {
+                    isValid = false;
+
+                    // Highlight the field
+                    $(this).css('border', '2px solid red');
+
+                    console.log(`Field ${id} is empty.`);
+                } else {
+                    // Reset the border for valid fields
+                    $(this).css('border', '');
+                }
+            });
+
+            
+
+            
+            if(isValid){
+                const form = document.getElementById('donationForm');
+                const data = new FormData(form);
+
+                for (let [key, value] of data.entries()) {
+                    console.log(`${key}: ${value}`);
+                }
+            
                 $.ajax({
                     type: 'POST',
                     enctype: 'multipart/form-data',
-                    url: '/signin',
+                    url: '/add-donation',
                     processData: false,
                     cache: false,
                     timeout: 800000,
@@ -317,26 +341,27 @@
                     data: data,
                     success: function(response) {
                         var data = JSON.parse(response);
+                        console.log(data)
                         if (data['status'] == true){
-                            $(".error_message").hide(0);
-                            $('#login_message').text("Welcome " + data['username'] +", Login Successfully.");
-                            $('#login_message').show(0).delay(3000).hide(0);
-
-                            setTimeout(() => {
-                                window.location="/home";
-                            },3000);
+                            $(".error_message.accept_donation").hide(0);
+                            $('.success_message.accept_donation').text(data['message']);
+                            $('.success_message.accept_donation').show(0);
 
                         } else{
-                            $(".error_message").text("Incorrect Email and Password.");
-                            $(".error_message").show(0);
+                            console.log("Inside bad status")
+                            $('.success_message.accept_donation').hide(0);
+                            $(".error_message.accept_donation").text(data['message']);
+                            $(".error_message.accept_donation").show(0);
 
                         }
                     } 
                 });
-            }
-        }
 
+            }
+            
+            
         }
+        
     </script>
 </body>
 </html>

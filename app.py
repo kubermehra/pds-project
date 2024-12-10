@@ -1,3 +1,4 @@
+from pickle import TRUE
 from kafka.metrics.stats import total
 import db
 import json
@@ -23,67 +24,6 @@ app.secret_key = 'your_very_secure_secret_key'  # You should generate a secure k
 # )
 
 
-def check_liked_lables():
-    try:
-        if request.method == 'POST':
-            email = session.get('email')
-            fields = 'liked_labels'
-            user = {
-                'email': email,
-                fields: {"$exists": True}
-            }
-            user_data = users.find_one(user)
-            
-            if user_data is None:
-                recommended_list = trending_videos.find({}, {'video_id': 1})
-                counts = 0
-                for vid in recommended_list:
-                    counts = counts + 1
-                
-                print("COUNT: ", counts)
-                if counts < 1:
-                    recommended_list = videos.aggregate([
-                        {"$group": {
-                            "_id": "$video_id",
-                            "total_views": {"$sum": "$view_count"}
-                        }},
-                        {"$sort": {"total_views": -1}},
-                        {"$limit": 20}
-                    ])
-                    vid_list = [doc["_id"] for doc in recommended_list]
-                else:
-                    recommended_list = trending_videos.find({}, {'video_id': 1})
-                    vid_list = [doc["video_id"] for doc in recommended_list]
-                # recommended_list = trending_videos.find({}, {'video_id': 1})
-                recommended_list = videos.aggregate([
-                    {"$sortByCount": "$video_id"},
-                    {"$sort": {"count": -1}},
-                    {"$limit": 20}
-                ])
-                vid_list = [doc["_id"] for doc in recommended_list]
-                
-                # vid_list = [doc["video_id"] for doc in recommended_list]
-                # Fetch video names from the MongoDB videos collection
-                video_names = []
-                for vid_id in vid_list:
-                    video_doc = videos.find_one({"video_id": vid_id})
-                    if video_doc:
-                        video_names.append(video_doc["title"])
-                    else:
-                        video_names.append("Unknown")  # Handle if video not found in the database
-                
-                # Construct the response data
-                data = {
-                    'status': False,
-                    'vid_list': vid_list,
-                    'vid_name': video_names
-                }
-                return data
-            else:
-                pass
-    
-    except Exception as e:
-        print(e)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -99,10 +39,10 @@ def signup():
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     
-    status, email, username = db.check_user()
+    status, email, name , username= db.check_user()
     
     data = {
-        "username": username,
+        "username": name,
         "status": status
     }
     if status:
@@ -139,12 +79,33 @@ def get_item():
 @app.route('/find-order', methods=['GET','POST'])
 def get_order():
     status,location_data=db.get_order_data()
-    print(status)
     data={
         'status': status,
         'locations': location_data
     }
     return json.dumps(data)
+
+@app.route('/add-donation', methods=['GET','POST'])
+def add_donation():
+
+    cursor=db.db.cursor(buffered=True,dictionary=True)
+    query="""
+        SELECT roleID
+        FROM Act 
+        WHERE userName = %s AND roleID = 'staff';
+        """
+    cursor.execute(query,(session['username'], ))
+    ans=cursor.fetchone()
+    if ans==None:
+        
+        return json.dumps(db.dict_message(False,"Not a staff Member"))
+    else:
+        print("....... In add donation with staff id..........\n\n")
+        result=db.add_order()
+        print(result)
+        return json.dumps(result)
+        
+        
 
 
 # @app.route('/generate_list', methods=['GET', 'POST'])
