@@ -9,7 +9,7 @@ CREATE TABLE Category (
 CREATE TABLE Item (
     ItemID INT NOT NULL AUTO_INCREMENT,
     iDescription TEXT,
-    photo VARCHAR(100), -- BLOB is better here, but for simplicity, we change it to VARCHAR; For p3 implementation, we recommend you to implement as blob
+    photo VARCHAR(20), -- BLOB is better here, but for simplicity, we change it to VARCHAR; For p3 implementation, we recommend you to implement as blob
     color VARCHAR(20),
     isNew BOOLEAN DEFAULT TRUE,
     hasPieces BOOLEAN,
@@ -19,6 +19,21 @@ CREATE TABLE Item (
     PRIMARY KEY (ItemID),
     FOREIGN KEY (mainCategory, subCategory) REFERENCES Category(mainCategory, subCategory)
 );
+
+CREATE TABLE Item (
+    ItemID INT NOT NULL AUTO_INCREMENT,
+    iDescription TEXT,
+    photo BLOB, -- Changed from VARCHAR to BLOB to store binary image data
+    color VARCHAR(20),
+    isNew BOOLEAN DEFAULT TRUE,
+    hasPieces BOOLEAN,
+    material VARCHAR(50),
+    mainCategory VARCHAR(50) NOT NULL,
+    subCategory VARCHAR(50) NOT NULL,
+    PRIMARY KEY (ItemID),
+    FOREIGN KEY (mainCategory, subCategory) REFERENCES Category(mainCategory, subCategory)
+);
+
 
 
 CREATE TABLE Person (
@@ -67,6 +82,8 @@ CREATE TABLE Location (
     shelfDescription VARCHAR(200),
     PRIMARY KEY (roomNum, shelfNum)
 );
+
+
 
 CREATE TABLE Piece (
     ItemID INT NOT NULL,

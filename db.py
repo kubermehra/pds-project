@@ -3,8 +3,6 @@ import json
 import mysql.connector
 from flask import request, jsonify, session
 from mysql.connector import cursor
-from werkzeug.security import generate_password_hash
-from werkzeug.security import check_password_hash
 
 
 
@@ -51,9 +49,9 @@ def insert_data():
         email = request.form['email']
         phone = request.form['phone']
 
-        hashed_password = generate_password_hash(password, method='sha256')
         
-        user=(username,hashed_password,fname,lname,email)
+        
+        user=(username,password,fname,lname,email)
 
         cursor=db.cursor(buffered=True)
         users=cursor.execute(f"SELECT userName FROM Person where userName = '{username}' ")
@@ -61,10 +59,6 @@ def insert_data():
         if users == None:
             query="INSERT INTO Person(userName,password,fname,lname,email) VALUES (%s,%s,%s,%s,%s);"
             cursor.execute(query,user)
-            
-            phone_query = "INSERT INTO PersonPhone(userName, phone) VALUES (%s, %s);"
-            cursor.execute(phone_query, (username, phone))
-            
             return True
         else:
             return False
@@ -82,15 +76,8 @@ def check_user():
         user_data=cursor.fetchone()
         if user_data == None:
             return False, "", "", ""
-        # else:
-        #     return True, user_data["email"], user_data["fname"], user_data['userName']
-        
-        stored_password = user_data['password']
-
-        if check_password_hash(stored_password, password):
-            return True, user_data["email"], user_data["fname"], user_data['userName']
         else:
-            return False, "", "", "" 
+            return True, user_data["email"], user_data["fname"], user_data['userName']
 
 def get_item_data():
     if request.method == 'POST':
