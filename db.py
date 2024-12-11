@@ -347,7 +347,36 @@ def db_prepare_order():
         cursor.execute(query,(orderID,))
         db.commit()
         
-        
+def db_get_order_values_user():
+    cursor=db.cursor(buffered=True,dictionary=True)
+    query="""
+    SELECT 
+        o.orderID,
+        o.orderDate,
+        o.orderNotes,
+        o.client,
+        p2.fname AS supervisorFirstName,
+        p2.lname AS supervisorLastName,
+        JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'itemID', i.ItemID,
+                'description', i.iDescription
+            )
+        ) AS items
+    FROM Ordered o
+    LEFT JOIN Person p1 ON o.client = p1.userName
+    LEFT JOIN Person p2 ON o.supervisor = p2.userName
+    LEFT JOIN ItemIn ii ON o.orderID = ii.orderID
+    LEFT JOIN Item i ON ii.ItemID = i.ItemID
+    WHERE o.client = %s
+    GROUP BY o.orderID;
+    """
+    print(session['username'])
+    cursor.execute(query,(session['username'],))
+    a=cursor.fetchall()
+    return a
+
+            
 
         
 

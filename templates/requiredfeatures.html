@@ -4,8 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WelcomeHome Features</title>
+
+    <style>
+        /* Block link styling */
+        .hover-block {
+            display: inline-block; /* Make the element a block */
+            padding: 10px 20px;
+            color: black; /* Text color */
+            font-size: 16px;
+            background-color: #f0f0f0; /* Background for the block */
+            border-radius: 5px; /* Rounded corners */
+            transition: color 0.3s, background-color 0.3s; /* Smooth transitions */
+        }
+
+        /* Hover effect */
+        .hover-block:hover {
+            cursor: pointer; /* Change cursor to pointer */
+            background-color: #e0e0e0; /* Slightly darker background on hover */
+            color: #007BFF; /* Change text color to a link color on hover */
+        }
+    </style>
+
 </head>
 <body>
+    <div class="hover-block" onclick="check_staff();">Open staff page</div>
+    <div class="hover-block"onclick="check_user();">Open user page </div>
     <h1>Required Features</h1>
 
     <!-- Section: Find Single Item -->
@@ -360,6 +383,56 @@
             }
             
             
+        }
+        function check_staff() {
+            $.ajax({
+                    type: 'POST',
+                    enctype: 'multipart/form-data',
+                    url: '/check-staff',
+                    processData: false,
+                    cache: false,
+                    timeout: 800000,
+                    contentType: false,
+                    data: '',
+                    success: function(response) {
+                        let data=JSON.parse(response)
+                        if(data['status'])
+                        {
+                            console.log("Inside shift")
+                            window.location='/staff-page';
+                        }
+                        else{
+                            alert("only staff can access the page");
+                        }
+
+                    } 
+                });
+
+        }
+
+        function check_user(){
+            $.ajax({
+                    type: 'POST',
+                    enctype: 'multipart/form-data',
+                    url: '/check-user',
+                    processData: false,
+                    cache: false,
+                    timeout: 800000,
+                    contentType: false,
+                    data: '',
+                    success: function(response) {
+                        let data=JSON.parse(response)
+                        if(data['status'])
+                        {
+                            window.location="/user-page";
+                        }
+                        else{
+                            alert("only client can access the page");
+                        }
+                        
+                    } 
+                });
+
         }
         
     </script>

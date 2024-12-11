@@ -27,7 +27,7 @@ app.secret_key = 'your_very_secure_secret_key'  # You should generate a secure k
 
 
 
-
+#.............................................. Rendering template.........................................
 @app.route('/', methods=['GET', 'POST'])
 def home():
     return render_template("signin.html")
@@ -67,6 +67,29 @@ def display():
     # else:
     #     return redirect(url_for('home'))  # Redirect to login if no user is logged in
 
+@app.route('/staff-page', methods=['GET','POST'])
+def open_staff_page():
+    print("Inside staff page")
+    return render_template("staffordermanagement.html")    
+
+@app.route('/user-page', methods=['GET','POST'])
+def open_user_page():
+    return render_template("useractions.html")   
+
+
+#........................................................... Functionality..................................................
+
+@app.route('/check-staff',methods=['GET','POST'])
+def check_staff():
+    if db.check_column_values('Act',{'userName':session['username'],'roleID':'staff'}):
+        return json.dumps(db.dict_message(True,''))
+    return json.dumps(db.dict_message(False,'Staff can access this page'))
+
+@app.route('/check-user',methods=['GET','POST'])
+def check_user():
+    if db.check_column_values('Act',{'userName':session['username'],'roleID':'client'}):
+        return json.dumps(db.dict_message(True,''))
+    return json.dumps(db.dict_message(False,'Client can access this page'))
 
 @app.route('/find-item', methods=['GET','POST'])
 def get_item():
@@ -107,9 +130,7 @@ def add_donation():
         print(result)
         return json.dumps(result)
 
-@app.route('/staff-page', methods=['GET','POST'])
-def open_page():
-    return render_template("staffordermanagement.html")    
+
 
 @app.route('/save-order-session',methods=['GET','POST'])
 def save_order_ID_session():
@@ -174,6 +195,11 @@ def prepare_order():
         return json.dumps(db.dict_message(False,'Wrong order ID'))
     db.db_prepare_order()
     return json.dumps(db.dict_message(True,"Order has been prepared"))
+
+@app.route('/get-order-values-user',methods=['GET','POST'])
+def get_order_values_user():
+    order_list=db.db_get_order_values_user()
+    return json.dumps()
 
 
 
