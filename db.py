@@ -33,7 +33,7 @@ def check_column_values(table_name, column_values):
 
 def dict_message(status,message):
     data={
-        'status': False,
+        'status': status,
         'message' : message
     }
     return data
@@ -254,7 +254,102 @@ def add_order():
 
             return dict_message(True,"Item added")
 
-            
+def get_orderID():
+    if request.method=='POST':
+        cursor=db.cursor(buffered=True)
+        query="""
+        SELECT MAX(`orderID`) 
+        FROM Ordered
+        """
+        cursor.execute(query)
+        orderID=cursor.fetchone()[0]
+        orderID+=1
+        return True,orderID
+
+def get_category_options():
+    if request.method=='POST':
+        cursor=db.cursor(buffered=True)
+        
+        # Finds distinct main category
+
+        query="""
+        SELECT DISTINCT(mainCategory) FROM Category
+        """
+        cursor.execute(query)
+        maincategory=cursor.fetchall()
+
+
+        # Finds distinct sub category
+
+        query="""
+        SELECT DISTINCT(subCategory) FROM Category
+        """
+        cursor.execute(query)
+        subcategory=cursor.fetchall()
+
+        return maincategory,subcategory
+
+def db_get_item_list():
+    if request.method=='POST':
+        query = """
+
+        SELECT 
+            i.ItemID, 
+            i.iDescription
+        FROM 
+            Item i
+        LEFT JOIN 
+            ItemIn ii 
+            ON i.ItemID = ii.ItemID AND ii.orderID = %s
+        WHERE 
+            i.mainCategory = %s 
+            AND i.subCategory = %s 
+            AND i.isNew = 1 
+            AND ii.ItemID IS NULL;
+        """
+    cursor=db.cursor(buffered=True,dictionary=True)
+    cursor.execute(query,(session['orderID'],request.form['mainCategory'],request.form['subCategory']))
+    item_list=cursor.fetchall()
+    return item_list
+
+def db_prepare_order():
+    if request.method=='POST':
+        cursor=db.cursor(buffered=True,dictionary=True)
+        orderID=request.form['orderID']
+        # orderID=5
+
+        #placing order in delivery room
+
+
+        query="""
+        UPDATE Piece
+        SET roomNum = 10, shelfNum = 1
+        WHERE ItemID IN (
+            SELECT ItemID
+            FROM ItemIn
+            WHERE orderID = %s
+        );
+
+        """
+        cursor.execute(query,(orderID,))
+        db.commit()
+
+        #updating new database
+        query="""
+        UPDATE Item
+        SET isNew = 0
+        WHERE ItemID IN (
+            SELECT ItemID
+            FROM ItemIn
+            WHERE orderID = %s
+        );
+        """
+        cursor.execute(query,(orderID,))
+        db.commit()
+        
+        
+
+        
 
         
 

@@ -3,40 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Order Management</title>
-    <script>
-        function validateStartOrder() {
-            const staffID = document.getElementById('staffID').value;
-            const clientUsername = document.getElementById('clientUsername').value;
-
-            if (!staffID || !clientUsername) {
-                alert('Please fill in all required fields for starting an order!');
-                return false;
-            }
-            return true;
-        }
-
-        function validateAddToOrder() {
-            const category = document.getElementById('mainCategory').value;
-            const subCategory = document.getElementById('subCategory').value;
-
-            if (!category || !subCategory) {
-                alert('Please select a category and subcategory to add items!');
-                return false;
-            }
-            return true;
-        }
-
-        function validatePrepareOrder() {
-            const orderID = document.getElementById('orderIDPrepare').value;
-
-            if (!orderID) {
-                alert('Please enter an Order ID to prepare the order!');
-                return false;
-            }
-            return true;
-        }
-    </script>
+    <title>Staff Order Management</title>   
 </head>
 <body>
     <h1>Staff Order Management</h1>
@@ -72,24 +39,19 @@
 
     <section id="start-order">
         <h2>Start an Order</h2>
-        <form method="POST" action="/start-order" onsubmit="return validateStartOrder();">
-            <label for="staffID">Staff ID:</label>
-            <input type="text" id="staffID" name="staffID" required>
-            <br><br>
+        <form id="start-order-form" >
 
             <label for="clientUsername">Client Username:</label>
             <input type="text" id="clientUsername" name="clientUsername" required>
             <br><br>
 
-            <label for="orderNotes">Order Notes:</label>
-            <textarea id="orderNotes" name="orderNotes"></textarea>
-            <br><br>
+            
 
-            <button type="submit">Start Order</button>
+            <input type="button" onclick="start_order();" value="Start Order">
         </form>
         <div id="output-start-order" style="margin-top: 20px;">
             <h3>Start Order Result:</h3>
-            <p>No data yet.</p>
+            <p class=>No data yet.</p>
         </div>
     </section>
 
@@ -121,39 +83,42 @@
     
     <section id="add-to-order">
         <h2>Add to Current Order</h2>
-        <form method="POST" action="/add-to-order" onsubmit="return validateAddToOrder();">
-            <label for="orderID">Order ID:</label>
-            <input type="text" id="orderID" name="orderID" required>
-            <br><br>
-
+        <form id="form-add-order">
+            
             <label for="mainCategory">Main Category:</label>
             <select id="mainCategory" name="mainCategory" required>
-                <option value="">Select Category</option>
-                <option value="Furniture">Furniture</option>
-                <option value="Electronics">Electronics</option>
-                <option value="Clothing">Clothing</option>
+                
             </select>
             <br><br>
 
             <label for="subCategory">Sub Category:</label>
             <select id="subCategory" name="subCategory" required>
-                <option value="">Select Subcategory</option>
-                <option value="Chair">Chair</option>
-                <option value="Table">Table</option>
-                <option value="Laptop">Laptop</option>
-                <option value="Shirt">Shirt</option>
+                
             </select>
             <br><br>
 
-            <label for="itemID">Item ID:</label>
-            <input type="text" id="itemIDAdd" name="itemID" required>
-            <br><br>
-
-            <button type="submit">Add Item to Order</button>
+            <input type="button" onclick="show_item();" value="Show Item">
         </form>
+
+
+        <div id="item-space" style="margin-top: 20px; " hidden>
+            <h3> Items</h3>
+            <form id="item">
+                <label for="item-list">Item: </label>
+                <select id="item-list" name="item-list" style="display: block;">
+                    <option value=""> Select Item</option>
+                    
+                </select>
+                <br>
+                <input type="button" onclick="add_item_into_order();" value="add">
+            </form>
+        </div>
+
+        
+
         <div id="output-add-to-order" style="margin-top: 20px;">
             <h3>Add to Order Result:</h3>
-            <p>No data yet.</p>
+            <p class>No data yet.</p>
         </div>
     </section>
 
@@ -179,22 +144,286 @@
         
     <section id="prepare-order">
         <h2>Prepare Order</h2>
-        <form method="POST" action="/prepare-order" onsubmit="return validatePrepareOrder();">
+        <form id="prepare-order-form">
             <label for="orderIDPrepare">Order ID:</label>
             <input type="text" id="orderIDPrepare" name="orderIDPrepare" required>
             <br><br>
-
-            <label for="holdingLocation">Holding Location:</label>
-            <input type="text" id="holdingLocation" name="holdingLocation" placeholder="Room,Shelf">
-            <br><br>
-
-            <button type="submit">Prepare Order</button>
+            <input type="button" onclick="prepare_order();" value="Prepare Order">
         </form>
         <div id="output-prepare-order" style="margin-top: 20px;">
             <h3>Prepare Order Result:</h3>
             <p>No data yet.</p>
         </div>
     </section>
+    <script src="{{ url_for('static', filename= 'vendor/jquery/jquery.min.js') }}"></script>
+    <script>
+        function start_order() {
+            console.log("inside start-order")
+            let isValid=true
+            $('#start-order-form input').each(function () {
+                const value = $(this).val().trim(); // Trim whitespace
+                const id = $(this).attr('id');
+
+                if (!value) {
+                    isValid = false;
+
+                    // Highlight the field
+                    $(this).css('border', '2px solid red');
+
+                    console.log(`Field ${id} is empty.`);
+                } else {
+                    // Reset the border for valid fields
+                    $(this).css('border', '');
+                }
+            });
+
+            if(isValid){
+                const form= $("#start-order-form").get(0);
+                const data= new FormData(form);
+
+                $.ajax({
+                    type: 'POST',
+                    enctype: 'multipart/form-data',
+                    url: '/save-order-session',
+                    processData: false,
+                    cache: false,
+                    timeout: 800000,
+                    contentType: false,
+                    data: data,
+                    success: function(response){
+                        let data=JSON.parse(response);
+                        if (data['status']){
+
+                            $("#output-start-order p").text(data['message']);
+
+                        }
+                        else{
+                            $("#output-start-order p").text("No data yet.");
+                            alert(data['message']);
+                        }
+
+                    }
+                
+                
+                });
+            }
+            
+        }
+
+        function show_item(){
+            let isValid=true
+            $('#form-add-order select').each(function () {
+                const value = $(this).val().trim(); // Trim whitespace
+                const id = $(this).attr('id');
+
+                if (!value) {
+                    isValid = false;
+
+                    // Highlight the field
+                    $(this).css('border', '2px solid red');
+
+                    console.log(`Field ${id} is empty.`);
+                } else {
+                    // Reset the border for valid fields
+                    $(this).css('border', '');
+                }
+            });
+
+            if(isValid){
+                const form= $("#form-add-order").get(0);
+                const data= new FormData(form);
+
+                for([key,value] of data.entries()){
+                    console.log(`${key}: ${value}`);
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    enctype: 'multipart/form-data',
+                    url: '/get-item-list',
+                    processData: false,
+                    cache: false,
+                    timeout: 800000,
+                    contentType: false,
+                    data: data,
+                    success: function(response){
+                        $("#item-space").show();
+                        let data=JSON.parse(response);
+                        const itemList = $('#item-list');
+                        console.log(data)
+                        itemList.empty();
+
+                        // Populate the select field with items from the response
+                        $.each(data, function(index, item) {
+                            const optionText = `${index+1}. ${item['iDescription']}`;
+                            itemList.append($('<option>', { 
+                                value: item['ItemID'], 
+                                text: optionText    
+                            }));
+                        });
+
+                    }
+                
+                
+                });
+            }
+        }
+
+        function add_item_into_order() {
+            let isValid=true
+            $('#item select').each(function () {
+                const value = $(this).val().trim(); // Trim whitespace
+                const id = $(this).attr('id');
+
+                if (!value) {
+                    isValid = false;
+
+                    // Highlight the field
+                    $(this).css('border', '2px solid red');
+
+                    console.log(`Field ${id} is empty.`);
+                } else {
+                    // Reset the border for valid fields
+                    $(this).css('border', '');
+                }
+            });
+
+            if(isValid){
+
+                console.log("Inside")
+                const form= $("#item").get(0);
+                const data= new FormData(form);
+
+                for([key,value] of data.entries()){
+                    console.log(`${key}: ${value}`);
+                }
+                $.ajax({
+                    type: 'POST',
+                    enctype: 'multipart/form-data',
+                    url: '/add-item-into-order',
+                    processData: false,
+                    cache: false,
+                    timeout: 800000,
+                    contentType: false,
+                    data: data,
+                    success: function(response){
+                        $("#output-add-to-order p").text("Successfully added the order");
+
+                    }
+                });
+            }
+        }
+
+
+        
+
+        function prepare_order(){
+            let isValid=true
+            $('#prepare-order-form input').each(function () {
+                const value = $(this).val().trim(); // Trim whitespace
+                const id = $(this).attr('id');
+
+                if (!value) {
+                    isValid = false;
+
+                    // Highlight the field
+                    $(this).css('border', '2px solid red');
+
+                    console.log(`Field ${id} is empty.`);
+                } else {
+                    // Reset the border for valid fields
+                    $(this).css('border', '');
+                }
+            });
+
+            if (isValid){
+                let data=new FormData();
+                
+                data.append('orderID',$("#orderIDPrepare").val());
+                for([key,value] of data.entries()){
+                    console.log(`${key}: ${value}`);
+                }
+            
+                $.ajax({
+                    type: 'POST',
+                    enctype: 'multipart/form-data',
+                    url: '/prepare-order',
+                    processData: false,
+                    cache: false,
+                    timeout: 800000,
+                    contentType: false,
+                    data: data,
+                    success: function(response){
+                        let data=JSON.parse(response);
+
+                        $("#output-prepare-order p").text(data['message']);
+
+                    }
+                });
+            }
+        }
+
+        
+        
+        
+        $.ajax({
+            type: 'POST',
+            enctype: 'multipart/form-data',
+            url: '/get-options',
+            processData: false,
+            cache: false,
+            timeout: 800000,
+            contentType: false,
+            data: "",
+            success: function(response){
+                
+                response=JSON.parse(response);
+                
+
+                const mainCategories = response['mainCategory']; // Extract main categories
+                const subCategories = response['subCategory'];   // Extract subcategories
+                console.log("Inside loding page")
+
+                // Get the select elements for mainCategory and subCategory using jQuery
+                const mcselect = $('#mainCategory');
+                const scselect = $('#subCategory');
+
+                // Clearing and appending main category
+                mcselect.empty();
+
+                mcselect.append($('<option>', {
+                    value: '',
+                    text: 'Select Category'
+                }));
+
+                //clearing and appending subcategory
+                scselect.empty();
+
+                scselect.append($('<option>', {
+                    value: '',
+                    text: 'Select Category'
+                }));
+                
+                
+                // Populate the mainCategory select
+                $.each(mainCategories, function(index, category) {
+                    mcselect.append($('<option>', { 
+                        value: category,
+                        text: (index+1) +". "+ category
+                    }));
+                });
+
+                // Populate the subCategory select
+                $.each(subCategories, function(index, subCategory) {
+                    scselect.append($('<option>', { 
+                        value: subCategory,
+                        text: (index+1) + ". "  +subCategory
+                    }));
+                });
+                }
+            });
+
+    </script>
 
     <hr>
 </body>
