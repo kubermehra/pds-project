@@ -199,7 +199,7 @@ def prepare_order():
 @app.route('/get-order-values-user',methods=['GET','POST'])
 def get_order_values_user():
     order_list=db.db_get_order_values_user()
-    return json.dumps()
+    return json.dumps(order_list)
 
 
 

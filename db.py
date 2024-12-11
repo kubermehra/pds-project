@@ -1,3 +1,4 @@
+import datetime
 import json
 import mysql.connector
 from flask import request, jsonify, session
@@ -374,6 +375,9 @@ def db_get_order_values_user():
     print(session['username'])
     cursor.execute(query,(session['username'],))
     a=cursor.fetchall()
+    for order in a:
+        if isinstance(order['orderDate'], datetime.date):
+            order['orderDate'] = order['orderDate'].isoformat()
     return a
 
             

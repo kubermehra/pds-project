@@ -4,18 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client Dashboard</title>
-    <script>
-        function validateRecordForm() {
-            const taskType = document.getElementById('taskType').value;
-            const orderID = document.getElementById('orderID').value;
-
-            if (!taskType || !orderID) {
-                alert('Please fill in all required fields to add a new record!');
-                return false;
-            }
-            return true;
-        }
-    </script>
+    
 </head>
 <body>
     <h1>Client Dashboard</h1>
@@ -23,53 +12,69 @@
     <!-- Section: View Orders as a Client -->
     <section id="client-orders">
         <h2>Your Orders</h2>
-        <form method="POST" action="/view-client-orders">
-            <button type="submit">View Your Orders</button>
-        </form>
+        
         <div id="output-client-orders" style="margin-top: 20px;">
-            <h3>Orders:</h3>
-            <p>No data yet.</p>
         </div>
     </section>
 
-    <hr>
 
-    <!-- Section: View Tasks as a Volunteer -->
-    <section id="volunteer-tasks">
-        <h2>Your Tasks as a Volunteer</h2>
-        <form method="POST" action="/view-volunteer-tasks">
-            <button type="submit">View Tasks</button>
-        </form>
-        <div id="output-volunteer-tasks" style="margin-top: 20px;">
-            <h3>Volunteer Tasks:</h3>
-            <p>No data yet.</p>
-        </div>
-    </section>
 
-    <hr>
 
-    <!-- Section: Add New Record -->
-    <section id="add-record">
-        <h2>Add a New Record</h2>
-        <form method="POST" action="/add-new-record" onsubmit="return validateRecordForm();">
-            <label for="taskType">Task Type:</label>
-            <select id="taskType" name="taskType" required>
-                <option value="">Select Task Type</option>
-                <option value="client">Client</option>
-                <option value="volunteer">Volunteer</option>
-            </select>
-            <br><br>
+    <script src="{{ url_for('static', filename= 'vendor/jquery/jquery.min.js') }}"></script>
+    <script>
+        $.ajax({
+            type: 'POST',
+            enctype: 'multipart/form-data',
+            url: '/get-order-values-user',
+            processData: false,
+            cache: false,
+            timeout: 800000,
+            contentType: false,
+            data: "",
+            success: function(response){
+                response=JSON.parse(response)
+                var outputDiv = $('#output-client-orders');
 
-            <label for="orderID">Order ID:</label>
-            <input type="text" id="orderID" name="orderID" required>
-            <br><br>
+                // Clear any existing content
+                outputDiv.empty();
 
-            <button type="submit">Add Record</button>
-        </form>
-        <div id="output-add-record" style="margin-top: 20px;">
-            <h3>New Record Status:</h3>
-            <p>No data yet.</p>
-        </div>
-    </section>
+                // Loop through the orders
+                for (var i = 0; i < response.length; i++) {
+                    var order = response[i];
+                    
+                    var orderDate = new Date(order.orderDate);
+                    // Append order details
+                    var orderDetails = `
+                        <div>
+                            <strong>Order ID:</strong> ${order.orderID}<br>
+                            <strong>Order Date:</strong> ${orderDate.toDateString()}<br>
+                            <strong>Client:</strong> ${order.client}<br>
+                            <strong>Supervisor:</strong> ${order.supervisorFirstName} ${order.supervisorLastName}
+                        </div>
+                    `;
+                    outputDiv.append(orderDetails);
+
+                    // Parse and append items
+                    var items = JSON.parse(order.items);
+                    var itemsHeading = '<div style="margin-top: 10px; margin-left: 20px;"><strong>Items:</strong></div>';
+                    outputDiv.append(itemsHeading);
+
+                    for (var j = 0; j < items.length; j++) {
+                        var item = items[j];
+                        var itemEntry = `
+                            <div style="margin-left: 40px;">
+                                ${j + 1}. ${item.description}
+                            </div>
+                        `;
+                        outputDiv.append(itemEntry);
+                    }
+
+                    // Add a separator for better readability between orders
+                    outputDiv.append('<hr>');
+                }
+                
+            }
+        });
+    </script>
 </body>
 </html>
