@@ -118,7 +118,7 @@
 
         <div id="output-add-to-order" style="margin-top: 20px;">
             <h3>Add to Order Result:</h3>
-            <p class>No data yet.</p>
+            <p>No data yet.</p>
         </div>
     </section>
 
@@ -307,9 +307,38 @@
                     contentType: false,
                     data: data,
                     success: function(response){
-                        $("#output-add-to-order p").text("Successfully added the order");
+                        response = JSON.parse(response);
+                        console.log(response)
+                        
+                        // Check if the response has the required status
+                        if (response['status']) {
+                            orderDetail=response['data'];
 
+                            // Select the output container
+                            const outputDiv = document.getElementById('output-add-to-order');
+                            let orderDate=new Date(orderDetail.orderDate);
+                            // Clear existing content
+                            outputDiv.innerHTML = '<h3>Add to Order Result:</h3>';
+
+                            // Append the order details dynamically
+                            const orderDetailsHtml = `
+                                <p><strong>Order ID:</strong> ${orderDetail.orderID}</p>
+                                <p><strong>Order Date:</strong> ${orderDate}</p>
+                                <p><strong>Order Notes:</strong> ${orderDetail.orderNotes || 'None'}</p>
+                                <p><strong>Supervisor:</strong> ${orderDetail.supervisor}</p>
+                                <p><strong>Client:</strong> ${orderDetail.client}</p>
+                            `;
+                            outputDiv.innerHTML += orderDetailsHtml;
+                        } else {
+                            // Handle case where status is false
+                            const outputDiv = document.getElementById('output-add-to-order');
+                            outputDiv.innerHTML = `
+                                <h3>Add to Order Result:</h3>
+                                <p style="color: red;">Failed to add the item to the order. Please try again.</p>
+                            `;
+                        }
                     }
+
                 });
             }
         }

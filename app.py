@@ -1,10 +1,11 @@
+import datetime
 from pickle import TRUE
 from re import sub
 import stat
 from kafka.metrics.stats import total
 import db
 import json
-from flask import Flask, request, render_template, session, redirect, url_for, jsonify
+from flask import Flask, request, render_template, session, redirect, url_for, jsonify, redirect
 from flask import jsonify
 from googleapiclient.discovery import build
 import isodate
@@ -30,6 +31,7 @@ app.secret_key = 'your_very_secure_secret_key'  # You should generate a secure k
 #.............................................. Rendering template.........................................
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    session['islogin']=False
     return render_template("signin.html")
 
 
@@ -42,6 +44,10 @@ def signup():
 def signin():
     
     status, email, name , username= db.check_user()
+    if status:
+        session['islogin']=True
+    else:
+        session['islogin']=False
     
     data = {
         "username": name,
@@ -53,31 +59,39 @@ def signin():
     return json.dumps(data)
 
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    status = db.insert_data()
-    return json.dumps(status)
+
 
 
 @app.route('/home', methods=['GET', 'POST'])
 def display():
-    username = session.get('username')
-    email = session.get('email')
-    return render_template("requiredfeatures.html")
+    if session['islogin']:
+        username = session.get('username')
+        email = session.get('email')
+        return render_template("requiredfeatures.html")
+    return redirect(url_for('home'))
     # else:
     #     return redirect(url_for('home'))  # Redirect to login if no user is logged in
 
 @app.route('/staff-page', methods=['GET','POST'])
 def open_staff_page():
     print("Inside staff page")
-    return render_template("staffordermanagement.html")    
+    if session['islogin']:
+        return render_template("staffordermanagement.html")    
+    return redirect(url_for('home'))
 
 @app.route('/user-page', methods=['GET','POST'])
 def open_user_page():
-    return render_template("useractions.html")   
+    if session['islogin']:
+        return render_template("useractions.html")   
+    return redirect(url_for('home'))
 
 
 #........................................................... Functionality..................................................
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    status = db.insert_data()
+    return json.dumps(status)
 
 @app.route('/check-staff',methods=['GET','POST'])
 def check_staff():
@@ -87,7 +101,7 @@ def check_staff():
 
 @app.route('/check-user',methods=['GET','POST'])
 def check_user():
-    if db.check_column_values('Act',{'userName':session['username'],'roleID':'client'}):
+    if db.check_column_values('Act',{'userName':session['username'],'roleID':'client'}) or db.check_column_values('Act',{'userName':session['username'],'roleID':'volunteer'}):
         return json.dumps(db.dict_message(True,''))
     return json.dumps(db.dict_message(False,'Client can access this page'))
 
@@ -170,7 +184,7 @@ def get_item_list():
 
 @app.route('/add-item-into-order',methods=['GET','POST'])
 def add_item_into_order():
-    cursor=db.db.cursor(buffered=True)
+    cursor=db.db.cursor(buffered=True,dictionary=True)
     if not db.check_column_values('Ordered',{'orderID':session['orderID']}):
         insert_query = """
             INSERT INTO Ordered (orderID, orderDate, supervisor, client)
@@ -184,7 +198,25 @@ def add_item_into_order():
         VALUES (%s, %s)
         """
     cursor.execute(query,(request.form['item-list'],session['orderID']))
-    return json.dumps(True)
+    db.db.commit()
+
+    query="""
+    Select * From Ordered where orderID =%s """
+
+    cursor.execute(query,(session['orderID'], ))
+    orders=cursor.fetchall()
+
+    
+
+    for order in orders:
+        if isinstance(order['orderDate'], datetime.date):
+            order['orderDate'] = order['orderDate'].isoformat()
+    all={
+        'status': True,
+        'data': order
+    }
+    
+    return json.dumps(all)
 
 # def get200_resp():
 #     return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}'

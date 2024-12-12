@@ -149,7 +149,7 @@
             <br><br>
 
             <label for="photo">Upload Photo:</label>
-            <input type="text" id="photo" name="photo" accept="image/*">
+            <input type="file" id="photo" name="photo" accept="image/*">
             <br><br>
 
             <label for="color">Color:</label>
@@ -285,7 +285,7 @@
     
                             // Clear any existing content in the div
                             outputDiv.empty();
-                            $(".error_message.find_item").hide(0);
+                            $(".error_message.find_order").hide(0);
     
                             // Loop through the items and append the ItemID and Locations
                             for (var i = 0; i < data['locations'].length; i++) {
@@ -311,7 +311,7 @@
                         } else {
                             console.warn('No valid items found in response.');
                             $('#output-order-items').empty(); // Correct the selector
-                            $(".error_message.find_item").show(0);
+                            $(".error_message.find_order").show(0);
                         }
                     
                     },
@@ -326,20 +326,24 @@
 
             // Loop through all inputs and textareas
             $('#donationForm input, #donationForm textarea').each(function () {
-                const value = $(this).val().trim(); // Trim whitespace
-                const id = $(this).attr('id');
+                let value = $(this).val().trim(); // Trim whitespace
+                let id = $(this).attr('id');
+                let type= $(this).attr('type');
 
-                if (!value) {
-                    isValid = false;
+                if( type !='file'){
+                    if (!value) {
+                        isValid = false;
 
-                    // Highlight the field
-                    $(this).css('border', '2px solid red');
+                        // Highlight the field
+                        $(this).css('border', '2px solid red');
 
-                    console.log(`Field ${id} is empty.`);
-                } else {
-                    // Reset the border for valid fields
-                    $(this).css('border', '');
+                        console.log(`Field ${id} is empty.`);
+                    } else {
+                        // Reset the border for valid fields
+                        $(this).css('border', '');
+                    }
                 }
+                
             });
 
             
@@ -348,10 +352,12 @@
             if(isValid){
                 const form = document.getElementById('donationForm');
                 const data = new FormData(form);
+                
 
                 for (let [key, value] of data.entries()) {
                     console.log(`${key}: ${value}`);
                 }
+                
             
                 $.ajax({
                     type: 'POST',

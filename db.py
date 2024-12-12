@@ -155,7 +155,6 @@ def add_order():
         itemID=request.form['itemID']
         idescription=request.form['iDescription']
         pdescription=request.form['pDescription']
-        photo=request.form['photo']
         color=request.form['color']
         isNew=int(request.form['isNew'] =='true')
         hasPieces=int(request.form['hasPieces'] == 'true')
@@ -166,7 +165,11 @@ def add_order():
         location=request.form['location']
         pNotes=request.form['pNotes']
         location=location.split(',')
-
+        
+        photo=""
+        if 'photo' in request.files:
+            photo=f"resources/{request.files['photo'].filename}"
+        
         
         for i in location:
             if not i.isdigit():
@@ -195,13 +198,19 @@ def add_order():
         if not val:
             return dict_message(False,"Wrong Donor username")
         else:
+
+
+            if not check_column_values('Location',{'roomNum':roomNum,'shelfNum':shelfNum}):
+                return dict_message(False,'Location is not in location list')
+
             if isNew:
-                query = """
-                INSERT INTO Category (mainCategory, subCategory)
-                VALUES (%s, %s)
-                """
-                cursor.execute(query,(mainCategory,subCategory))
-                db.commit()
+                if not check_column_values('Category',{'mainCategory':mainCategory,'subCategory':subCategory}):
+                    query = """
+                    INSERT INTO Category (mainCategory, subCategory)
+                    VALUES (%s, %s)
+                    """
+                    cursor.execute(query,(mainCategory,subCategory))
+                    db.commit()
 
                 query = """
                 INSERT INTO Item (
@@ -217,16 +226,13 @@ def add_order():
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
                 """
                 cursor.execute(query, (idescription, photo, color, isNew, hasPieces, material, mainCategory, subCategory))
-
                 db.commit()
+
+                request.files["photo"].save(photo)
                 cursor=db.cursor(buffered=True)
                 cursor.execute("Select LAST_INSERT_ID();")
                 itemID=cursor.fetchone()[0]
-
-            if not check_column_values('Item',{'ItemID':itemID}):
-                return dict_message(False,"Item ID not correct")
-
-            
+             
             query="""
                 Select max(pieceNum)
                 From Piece
@@ -240,6 +246,9 @@ def add_order():
             else:
                 pieceNum=pieceNum[0]
             pieceNum+=1
+
+            if not check_column_values('Item',{'ItemID':itemID}):
+                return dict_message(False,"Item ID not correct")
 
             query = """
             INSERT INTO Piece (
@@ -385,11 +394,11 @@ def db_get_order_values_user():
     LEFT JOIN Person p2 ON o.supervisor = p2.userName
     LEFT JOIN ItemIn ii ON o.orderID = ii.orderID
     LEFT JOIN Item i ON ii.ItemID = i.ItemID
-    WHERE o.client = %s
+    WHERE o.client = %s OR o.supervisor = %s
     GROUP BY o.orderID;
     """
     print(session['username'])
-    cursor.execute(query,(session['username'],))
+    cursor.execute(query,(session['username'],session['username']))
     a=cursor.fetchall()
     for order in a:
         if isinstance(order['orderDate'], datetime.date):
