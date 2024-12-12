@@ -51,7 +51,7 @@ def insert_data():
         email = request.form['email']
         phone = request.form['phone']
 
-        hashed_password = generate_password_hash(password, method='sha256')
+        hashed_password = generate_password_hash(password,method='pbkdf2:sha256',salt_length=2)
         
         user=(username,hashed_password,fname,lname,email)
 
@@ -64,6 +64,9 @@ def insert_data():
             
             phone_query = "INSERT INTO PersonPhone(userName, phone) VALUES (%s, %s);"
             cursor.execute(phone_query, (username, phone))
+
+            act_query = "INSERT INTO Act(userName,roleID) VALUES (%s,'client')"
+            cursor.execute(act_query,(username, )) 
             
             return True
         else:
@@ -78,7 +81,7 @@ def check_user():
         
         cursor=db.cursor(dictionary=True)
 
-        user_data=cursor.execute(f"Select * from Person where username='{username}' and password='{password}'")
+        user_data=cursor.execute(f"Select * from Person where username='{username}'")
         user_data=cursor.fetchone()
         if user_data == None:
             return False, "", "", ""
